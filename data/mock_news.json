@@ -1,0 +1,36 @@
+{
+  "AAPL": [
+    {
+      "title": "Apple announces new AI features",
+      "source": "Mock News",
+      "date": "2026-06-01",
+      "url": "https://example.com/apple-ai",
+      "content": "Apple announced new AI features for its upcoming devices."
+    },
+    {
+      "title": "Apple faces regulatory pressure in Europe",
+      "source": "Mock News",
+      "date": "2026-06-02",
+      "url": "https://example.com/apple-regulation",
+      "content": "Apple is facing additional regulatory pressure related to app store policies."
+    }
+  ],
+  "TSLA": [
+    {
+      "title": "Tesla reports lower vehicle deliveries",
+      "source": "Mock News",
+      "date": "2026-06-03",
+      "url": "https://example.com/tesla-deliveries",
+      "content": "Tesla reported lower-than-expected quarterly vehicle deliveries."
+    }
+  ],
+  "NVDA": [
+    {
+      "title": "Nvidia announces new AI chip demand",
+      "source": "Mock News",
+      "date": "2026-06-04",
+      "url": "https://example.com/nvidia-ai-chip",
+      "content": "Nvidia reported strong demand for its latest AI chips from cloud computing companies."
+    }
+  ]
+}

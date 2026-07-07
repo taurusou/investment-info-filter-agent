@@ -1,0 +1,47 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f6f6f6;
+  color: #222;
+  margin: 0;
+  padding: 30px;
+}
+
+main {
+  max-width: 850px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+input {
+  padding: 10px;
+  width: 260px;
+  margin-right: 8px;
+}
+
+button {
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.card {
+  border: 1px solid #ddd;
+  padding: 18px;
+  margin-top: 18px;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.hidden {
+  display: none;
+}
+
+.error {
+  color: darkred;
+}
+
+.disclaimer {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;

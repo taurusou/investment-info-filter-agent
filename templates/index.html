@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Investment Information Filter Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <h1>Investment Information Filter Agent</h1>
+    <p>Enter a stock ticker to analyze recent stock-related events.</p>
+
+    <section>
+      <input id="tickerInput" type="text" placeholder="Example: AAPL">
+      <button onclick="analyzeTicker()">Analyze</button>
+    </section>
+
+    <section id="results"></section>
+
+    <section id="followUpSection" class="hidden">
+      <h2>Ask a follow-up question</h2>
+      <input id="questionInput" type="text" placeholder="Example: Why is this negative?">
+      <button onclick="askFollowUp()">Ask</button>
+      <div id="followUpAnswer"></div>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

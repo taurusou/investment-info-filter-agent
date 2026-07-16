@@ -50,7 +50,11 @@ def _get_mock_news(ticker: str) -> List[Dict[str, Any]]:
 def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
+        print("news_service: OPENAI_API_KEY is missing or empty, using mock fallback")
         return []
+
+    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    print(f"news_service: using OpenAI model {model_name} for ticker {ticker}")
 
     prompt = (
         f"Provide up to 5 recent stock news items for the company or ticker '{ticker}'. "
@@ -79,8 +83,12 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
             json=payload,
             timeout=60,
         )
-        response.raise_for_status()
-        raw = response.json()["choices"][0]["message"]["content"]
+        if response.status_code != 200:
+            print(f"news_service: OpenAI returned status {response.status_code}: {response.text}")
+            return []
+
+        data = response.json()
+        raw = data["choices"][0]["message"]["content"]
         news_items = _extract_json_list(raw)
 
         valid_items = []
@@ -96,8 +104,14 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
                     "content": item.get("content", "").strip(),
                 }
             )
+        if not valid_items:
+            print(f"news_service: OpenAI response parsed to zero valid items. raw=\n{raw}")
         return valid_items
-    except (requests.RequestException, KeyError, ValueError, json.JSONDecodeError):
+    except requests.RequestException as exc:
+        print(f"news_service: OpenAI request failed: {exc}")
+        return []
+    except (KeyError, ValueError, json.JSONDecodeError) as exc:
+        print(f"news_service: OpenAI parsing failed: {exc}")
         return []
 
 

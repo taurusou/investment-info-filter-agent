@@ -101,13 +101,19 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
         return []
 
 
-def get_news(ticker: str) -> List[Dict[str, Any]]:
+def get_news(ticker: str) -> (List[Dict[str, Any]], bool):
     """
     Fetch news for a given ticker, using OpenAI as the primary source.
     Falls back to local mock news if OpenAI fails.
+
+    Returns a tuple: (news_items, used_openai)
     """
     ticker = ticker.upper()
     news_items = _get_news_from_openai(ticker)
     if news_items:
-        return news_items
-    return _get_mock_news(ticker)
+        print(f"news_service: fetched {len(news_items)} items from OpenAI for {ticker}")
+        return news_items, True
+
+    mock = _get_mock_news(ticker)
+    print(f"news_service: falling back to mock data ({len(mock)} items) for {ticker}")
+    return mock, False

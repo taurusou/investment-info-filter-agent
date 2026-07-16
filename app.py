@@ -26,7 +26,7 @@ def analyze():
         return jsonify({"error": "Ticker is required."}), 400
 
     # Get news for this ticker, using OpenAI to retrieve data if possible.
-    news_items = get_news(ticker)
+    news_items, used_openai = get_news(ticker)
 
     # If there is no news for this ticker, return an error
     if len(news_items) == 0:
@@ -34,6 +34,8 @@ def analyze():
 
     # Analyze the news items with the OpenAI model.
     analysis = analyze_news(ticker, news_items)
+    # Add info about which source was used to fetch news
+    analysis["news_source_used_openai"] = bool(used_openai)
     return jsonify(analysis)
 
 
@@ -64,6 +66,20 @@ def follow_up():
     # For now, this is a mock answer
     answer = answer_follow_up(question, previous_analysis)
     return jsonify(answer)
+
+
+@app.route("/debug-news", methods=["GET"])
+def debug_news():
+    """Return raw news items and a flag whether OpenAI was used.
+
+    Example: /debug-news?ticker=AAPL
+    """
+    ticker = request.args.get("ticker", "").strip()
+    if ticker == "":
+        return jsonify({"error": "Ticker is required."}), 400
+
+    news_items, used_openai = get_news(ticker)
+    return jsonify({"used_openai": bool(used_openai), "count": len(news_items), "items": news_items})
 
 
 if __name__ == "__main__":

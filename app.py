@@ -1,6 +1,6 @@
 # Import Flask tools:
 from flask import Flask, render_template, request, jsonify
-from services.news_service import get_mock_news
+from services.news_service import get_news
 from services.model_service import analyze_news, answer_follow_up
 
 app = Flask(__name__)
@@ -12,7 +12,7 @@ def home():
 
 # Analyze route
 # This route receives a stock ticker from the frontend,
-# gets related mock news, analyzes the news, and sends the result back as JSON.
+# fetches news, analyzes it, and sends the result back as JSON.
 @app.route("/analyze", methods=["POST"])
 def analyze():
     # Get JSON data sent from frontend JavaScript
@@ -25,15 +25,14 @@ def analyze():
     if ticker == "":
         return jsonify({"error": "Ticker is required."}), 400
 
-    # Get mock news for this ticker from mock_news.json
-    news_items = get_mock_news(ticker)
+    # Get news for this ticker, using OpenAI to retrieve data if possible.
+    news_items = get_news(ticker)
 
     # If there is no news for this ticker, return an error
     if len(news_items) == 0:
         return jsonify({"error": "No news found for this ticker."}), 404
 
-    # Analyze the news items
-    # at this stage, this uses simple mock logic(not real AI model)
+    # Analyze the news items with the OpenAI model.
     analysis = analyze_news(ticker, news_items)
     return jsonify(analysis)
 

@@ -84,4 +84,7 @@ def debug_news():
 
 if __name__ == "__main__":
     # Reload the app when code changes and show error messages.
-    app.run(debug=True)
+    import os
+
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)

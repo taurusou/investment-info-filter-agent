@@ -55,7 +55,7 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
         print("news_service: OPENAI_API_KEY is missing or empty, using mock fallback")
         return []
 
-    model_name = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     print(f"news_service: using OpenAI model {model_name} for ticker {ticker}")
 
     prompt = (

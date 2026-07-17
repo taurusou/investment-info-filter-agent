@@ -11,6 +11,7 @@ load_dotenv()
 
 
 def _extract_json_list(raw_response: str) -> List[Dict[str, Any]]:
+    """Parse JSON list output from the OpenAI response."""
     text = (raw_response or "").strip()
     if not text:
         return []
@@ -36,6 +37,7 @@ def _extract_json_list(raw_response: str) -> List[Dict[str, Any]]:
 
 
 def _get_mock_news(ticker: str) -> List[Dict[str, Any]]:
+    """Load fallback mock news from the local data file."""
     ticker = ticker.upper()
     file_path = Path("data/mock_news.json")
 
@@ -53,7 +55,7 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
         print("news_service: OPENAI_API_KEY is missing or empty, using mock fallback")
         return []
 
-    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    model_name = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
     print(f"news_service: using OpenAI model {model_name} for ticker {ticker}")
 
     prompt = (

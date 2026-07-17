@@ -87,4 +87,5 @@ if __name__ == "__main__":
     import os
 
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # Bind only to localhost in development so the app shows one address.
+    app.run(host="127.0.0.1", port=port, debug=True)

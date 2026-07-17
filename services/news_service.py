@@ -55,9 +55,7 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
         print("news_service: OPENAI_API_KEY is missing or empty, using mock fallback")
         return []
 
-    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    print(f"news_service: using OpenAI model {model_name} for ticker {ticker}")
-
+    model_candidates = [os.getenv("OPENAI_MODEL", "gpt-4o-mini"), "gpt-3.5-turbo"]
     prompt = (
         f"Provide up to 5 recent stock news items for the company or ticker '{ticker}'. "
         "Return only valid JSON in the form of a list of objects. "
@@ -66,55 +64,65 @@ def _get_news_from_openai(ticker: str) -> List[Dict[str, Any]]:
         "If you do not know the exact date or url, leave the field blank, but still provide the item."
     )
 
-    payload = {
-        "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-        "messages": [
-            {"role": "system", "content": "You are a news retrieval assistant. Provide stock news in strict JSON format."},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.2,
-    }
+    for model_name in model_candidates:
+        if not model_name:
+            continue
 
-    try:
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=60,
-        )
-        if response.status_code != 200:
-            print(f"news_service: OpenAI returned status {response.status_code}: {response.text}")
-            return []
+        print(f"news_service: trying OpenAI model {model_name} for ticker {ticker}")
+        payload = {
+            "model": model_name,
+            "messages": [
+                {"role": "system", "content": "You are a news retrieval assistant. Provide stock news in strict JSON format."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.2,
+        }
 
-        data = response.json()
-        raw = data["choices"][0]["message"]["content"]
-        news_items = _extract_json_list(raw)
-
-        valid_items = []
-        for item in news_items:
-            if not isinstance(item, dict):
-                continue
-            valid_items.append(
-                {
-                    "title": item.get("title", "").strip(),
-                    "source": item.get("source", "").strip(),
-                    "date": item.get("date", "").strip(),
-                    "url": item.get("url", "").strip(),
-                    "content": item.get("content", "").strip(),
-                }
+        try:
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+                timeout=60,
             )
-        if not valid_items:
-            print(f"news_service: OpenAI response parsed to zero valid items. raw=\n{raw}")
-        return valid_items
-    except requests.RequestException as exc:
-        print(f"news_service: OpenAI request failed: {exc}")
-        return []
-    except (KeyError, ValueError, json.JSONDecodeError) as exc:
-        print(f"news_service: OpenAI parsing failed: {exc}")
-        return []
+            if response.status_code != 200:
+                print(f"news_service: OpenAI returned status {response.status_code} for model {model_name}: {response.text}")
+                continue
+
+            data = response.json()
+            raw = data["choices"][0]["message"]["content"]
+            news_items = _extract_json_list(raw)
+
+            valid_items = []
+            for item in news_items:
+                if not isinstance(item, dict):
+                    continue
+                valid_items.append(
+                    {
+                        "title": item.get("title", "").strip(),
+                        "source": item.get("source", "").strip(),
+                        "date": item.get("date", "").strip(),
+                        "url": item.get("url", "").strip(),
+                        "content": item.get("content", "").strip(),
+                    }
+                )
+            if valid_items:
+                return valid_items
+
+            print(f"news_service: OpenAI response parsed to zero valid items for model {model_name}. raw=\n{raw}")
+            continue
+        except requests.RequestException as exc:
+            print(f"news_service: OpenAI request failed for model {model_name}: {exc}")
+            continue
+        except (KeyError, ValueError, json.JSONDecodeError) as exc:
+            print(f"news_service: OpenAI parsing failed for model {model_name}: {exc}")
+            continue
+
+    print("news_service: all OpenAI attempts failed, using mock fallback")
+    return []
 
 
 def get_news(ticker: str) -> (List[Dict[str, Any]], bool):

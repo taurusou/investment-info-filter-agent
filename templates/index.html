@@ -1,28 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Analyze recent investment news, understand potential market impact, and ask informed follow-up questions."
+  >
+  <meta name="theme-color" content="#0b1426">
   <title>Investment Information Filter Agent</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main>
-    <h1>Investment Information Filter Agent</h1>
-    <p>Enter a stock ticker to analyze recent stock-related events.</p>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
-    <section>
-      <input id="tickerInput" type="text" placeholder="Example: AAPL">
-      <button onclick="analyzeTicker()">Analyze</button>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Investment Information Filter Agent home">
+        <span class="brand-mark" aria-hidden="true">IF</span>
+        <span class="brand-name">Investment Information <strong>Filter Agent</strong></span>
+      </a>
+
+      <div class="header-status" aria-label="AI-assisted market research">
+        <span class="status-dot" aria-hidden="true"></span>
+        AI-assisted market research
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="eyebrow">Investment news, clarified</p>
+        <h1 id="hero-title">See the signal behind the market headlines.</h1>
+        <p class="hero-description">
+          Turn recent company news into a focused brief with impact labels,
+          clear reasoning, and confidence you can evaluate.
+        </p>
+
+        <ul class="hero-benefits" aria-label="Analysis features">
+          <li>Recent market coverage</li>
+          <li>Evidence-based impact</li>
+          <li>Contextual follow-ups</li>
+        </ul>
+      </div>
+
+      <form id="analyzeForm" class="search-panel" novalidate>
+        <div class="search-panel-heading">
+          <div>
+            <p class="panel-kicker">Start an analysis</p>
+            <h2>Research a company</h2>
+          </div>
+          <span class="panel-step" aria-hidden="true">01</span>
+        </div>
+
+        <label for="tickerInput">Stock ticker or company name</label>
+        <div class="search-control">
+          <input
+            id="tickerInput"
+            name="ticker"
+            type="text"
+            placeholder="Try AAPL or Microsoft"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="60"
+            enterkeyhint="search"
+            aria-describedby="tickerHint searchFeedback"
+            required
+          >
+          <button
+            id="analyzeButton"
+            class="primary-button"
+            type="submit"
+            aria-controls="results"
+          >
+            <span class="button-label">Analyze news</span>
+            <span class="button-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="search-support">
+          <p id="tickerHint" class="field-hint">Enter a listed ticker or a recognized company name.</p>
+          <div class="ticker-examples" aria-label="Example tickers">
+            <span>Try:</span>
+            <button type="button" class="ticker-chip" data-ticker="AAPL">AAPL</button>
+            <button type="button" class="ticker-chip" data-ticker="MSFT">MSFT</button>
+            <button type="button" class="ticker-chip" data-ticker="NVDA">NVDA</button>
+          </div>
+        </div>
+
+        <p
+          id="searchFeedback"
+          class="search-feedback"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        ></p>
+      </form>
     </section>
 
-    <section id="results"></section>
+    <section
+      id="results"
+      class="results-region"
+      aria-label="Investment news analysis"
+      aria-live="polite"
+      aria-busy="false"
+    >
+      <div class="initial-state">
+        <div class="initial-state-marker" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="initial-state-content">
+          <p class="eyebrow">A clearer research workflow</p>
+          <h2>From ticker to decision-useful context</h2>
+          <p>
+            Your analysis will organize the latest coverage into concise,
+            source-aware insights designed for faster review.
+          </p>
+        </div>
+        <ol class="workflow-list">
+          <li>
+            <span class="workflow-number">01</span>
+            <div>
+              <strong>Scan recent coverage</strong>
+              <span>Review the events shaping the current narrative.</span>
+            </div>
+          </li>
+          <li>
+            <span class="workflow-number">02</span>
+            <div>
+              <strong>Assess possible impact</strong>
+              <span>Separate positive, neutral, and negative signals.</span>
+            </div>
+          </li>
+          <li>
+            <span class="workflow-number">03</span>
+            <div>
+              <strong>Explore the reasoning</strong>
+              <span>Ask follow-up questions grounded in the analysis.</span>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-    <section id="followUpSection" class="hidden">
-      <h2>Ask a follow-up question</h2>
-      <input id="questionInput" type="text" placeholder="Example: Why is this negative?">
-      <button onclick="askFollowUp()">Ask</button>
-      <div id="followUpAnswer"></div>
+    <section
+      id="followUpSection"
+      class="follow-up-section hidden"
+      aria-labelledby="followUpHeading"
+    >
+      <div class="follow-up-intro">
+        <div>
+          <p class="eyebrow">Go one level deeper</p>
+          <h2 id="followUpHeading">Ask about this analysis</h2>
+        </div>
+        <p>
+          Explore the catalysts, risks, and reasoning behind the current brief.
+          Answers stay grounded in the analysis above.
+        </p>
+      </div>
+
+      <div class="prompt-suggestions" aria-label="Suggested follow-up questions">
+        <button
+          type="button"
+          class="prompt-button"
+          data-question="Which news item is most important for investors, and why?"
+        >
+          Which event matters most?
+        </button>
+        <button
+          type="button"
+          class="prompt-button"
+          data-question="What is the biggest downside risk in this analysis?"
+        >
+          What is the biggest risk?
+        </button>
+        <button
+          type="button"
+          class="prompt-button"
+          data-question="Explain the impact labels and the evidence behind them."
+        >
+          Explain the impact labels
+        </button>
+      </div>
+
+      <form id="followUpForm" class="follow-up-form" novalidate>
+        <label for="questionInput">Your follow-up question</label>
+        <div class="follow-up-control">
+          <input
+            id="questionInput"
+            name="question"
+            type="text"
+            placeholder="Ask about a catalyst, risk, or impact label"
+            autocomplete="off"
+            maxlength="500"
+            enterkeyhint="send"
+            aria-describedby="questionHint"
+            required
+          >
+          <button id="followUpButton" class="primary-button" type="submit">
+            <span class="button-label">Ask the agent</span>
+            <span class="button-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p id="questionHint" class="field-hint">
+          The agent will use the current ticker analysis as context.
+        </p>
+      </form>
+
+      <div
+        id="followUpAnswer"
+        class="follow-up-answer"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        aria-busy="false"
+      ></div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <p>Built for research and education. Always verify material information independently.</p>
+    <p>Not investment advice.</p>
+  </footer>
+
+  <noscript>
+    <p class="noscript-message">JavaScript is required to analyze investment news.</p>
+  </noscript>
 
   <script src="/static/script.js"></script>
 </body>

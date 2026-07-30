@@ -1,0 +1,183 @@
+{
+  "source": "https://github.com/czyssrs/FinQA",
+  "split": "dev",
+  "license": "MIT",
+  "note": "This small adapted sample uses FinQA gold supporting evidence as oracle context. Gold answers are used only after each API response is received.",
+  "examples": [
+    {
+      "id": "V/2008/page_17.pdf-1",
+      "pre_text": [
+        "company the american express of payments volume ( billions ) is 637 ; the american express of total volume ( billions ) is 647 ; the american express of total transactions ( billions ) is 5.0 ; the american express of cards ( millions ) is 86 ;"
+      ],
+      "post_text": [],
+      "table": [
+        [
+          "company",
+          "payments volume ( billions )",
+          "total volume ( billions )",
+          "total transactions ( billions )",
+          "cards ( millions )"
+        ],
+        [
+          "visa inc. ( 1 )",
+          "$ 2457",
+          "$ 3822",
+          "50.3",
+          "1592"
+        ],
+        [
+          "mastercard",
+          "1697",
+          "2276",
+          "27.0",
+          "916"
+        ],
+        [
+          "american express",
+          "637",
+          "647",
+          "5.0",
+          "86"
+        ],
+        [
+          "discover",
+          "102",
+          "119",
+          "1.6",
+          "57"
+        ],
+        [
+          "jcb",
+          "55",
+          "61",
+          "0.6",
+          "58"
+        ],
+        [
+          "diners club",
+          "29",
+          "30",
+          "0.2",
+          "7"
+        ]
+      ],
+      "qa": {
+        "question": "what is the average payment volume per transaction for american express?",
+        "exe_ans": 127.4
+      }
+    },
+    {
+      "id": "C/2017/page_328.pdf-1",
+      "pre_text": [
+        "date the 31-dec-2012 of citi is 100.0 ; the 31-dec-2012 of s&p 500 is 100.0 ; the 31-dec-2012 of s&p financials is 100.0 ;",
+        "date the 31-dec-2017 of citi is 193.5 ; the 31-dec-2017 of s&p 500 is 208.1 ; the 31-dec-2017 of s&p financials is 230.9 ;"
+      ],
+      "post_text": [],
+      "table": [
+        [
+          "date",
+          "citi",
+          "s&p 500",
+          "s&p financials"
+        ],
+        [
+          "31-dec-2012",
+          "100.0",
+          "100.0",
+          "100.0"
+        ],
+        [
+          "31-dec-2013",
+          "131.8",
+          "132.4",
+          "135.6"
+        ],
+        [
+          "31-dec-2014",
+          "137.0",
+          "150.5",
+          "156.2"
+        ],
+        [
+          "31-dec-2015",
+          "131.4",
+          "152.6",
+          "153.9"
+        ],
+        [
+          "31-dec-2016",
+          "152.3",
+          "170.8",
+          "188.9"
+        ],
+        [
+          "31-dec-2017",
+          "193.5",
+          "208.1",
+          "230.9"
+        ]
+      ],
+      "qa": {
+        "question": "what was the percentage cumulative total return for the five year period ended 31-dec-2017 of citi common stock?",
+        "exe_ans": 0.935
+      }
+    },
+    {
+      "id": "DVN/2007/page_58.pdf-2",
+      "pre_text": [
+        "the canada of oil ( mmbbls ) is 23 ; the canada of gas ( bcf ) is 198 ; the canada of ngls ( mmbbls ) is 4 ; the canada of total ( mmboe ) is 60 ;",
+        "the total of oil ( mmbbls ) is 66 ; the total of gas ( bcf ) is 894 ; the total of ngls ( mmbbls ) is 28 ; the total of total ( mmboe ) is 243 ;",
+        "oil gas ngls total ( mmbbls ) ( bcf ) ( mmbbls ) ( mmboe ) ."
+      ],
+      "post_text": [],
+      "table": [
+        [
+          "",
+          "oil ( mmbbls )",
+          "gas ( bcf )",
+          "ngls ( mmbbls )",
+          "total ( mmboe )"
+        ],
+        [
+          "u.s . onshore",
+          "12",
+          "626",
+          "23",
+          "140"
+        ],
+        [
+          "u.s . offshore",
+          "8",
+          "68",
+          "1",
+          "20"
+        ],
+        [
+          "canada",
+          "23",
+          "198",
+          "4",
+          "60"
+        ],
+        [
+          "international",
+          "23",
+          "2",
+          "2014",
+          "23"
+        ],
+        [
+          "total",
+          "66",
+          "894",
+          "28",
+          "243"
+        ]
+      ],
+      "qa": {
+        "question": "what percentage of the total oil and gas mmboe comes from canada?",
+        "exe_ans": 24.69136
+      }
+    }
+  ]
+}

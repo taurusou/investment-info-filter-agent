@@ -46,6 +46,42 @@ The MVP will not include:
 - **Data Source:** Mock news data first, then financial/news APIs
 - **Deployment:** GitHub Pages for documentation, possible backend deployment later
 
+## FinQA Direct-Answer MVP
+
+The project includes a small OpenAI-powered numerical reasoning evaluation
+using three adapted examples from the
+[FinQA dataset](https://github.com/czyssrs/FinQA).
+
+This phase is deliberately small:
+
+- It gives the model FinQA's gold supporting evidence and financial table.
+- It asks the model for a final answer and a short calculation.
+- It compares the prediction with `qa.exe_ans`.
+- It prints direct-answer accuracy in the terminal.
+- It defaults to one example so the first run uses only one API request.
+
+Run one example:
+
+```powershell
+python -B finqa_mvp.py --limit 1
+```
+
+Run all three included examples:
+
+```powershell
+python -B finqa_mvp.py --limit 3
+```
+
+The evaluator uses the existing `OPENAI_API_KEY` and `OPENAI_MODEL` values from
+`.env`. Gold answers and FinQA reasoning programs are never included in the
+OpenAI prompt.
+
+This is an **oracle-context direct-answer sanity check**, not an official FinQA
+benchmark score. It does not evaluate retrieval or FinQA program generation,
+and results from three selected examples are only exploratory. See
+[`data/FINQA_NOTICE.md`](data/FINQA_NOTICE.md) for attribution and license
+information.
+
 ## Basic System Architecture
 
 ```text

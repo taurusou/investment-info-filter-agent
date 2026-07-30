@@ -1,9 +1,75 @@
+import re
+
 # Import Flask tools:
 from flask import Flask, render_template, request, jsonify
 from services.news_service import get_news
 from services.model_service import analyze_news, answer_follow_up
 
 app = Flask(__name__)
+
+
+MAX_QUERY_LENGTH = 60
+
+
+def normalize_ticker_input(raw_value):
+    """Clean and validate a ticker symbol or company name.
+
+    The function returns two values:
+    - the cleaned input when it is valid
+    - an error message when it is invalid
+
+    Keeping this logic in one function makes it easy to test without calling
+    OpenAI or fetching news.
+    """
+
+    if raw_value is None:
+        return None, "Ticker or company name is required."
+
+    # JSON values can be numbers, lists, or objects. We only accept text.
+    if not isinstance(raw_value, str):
+        return None, "Ticker or company name must be text."
+
+    # Reject multiline input instead of sending hidden instructions to the model.
+    if "\n" in raw_value or "\r" in raw_value or "\t" in raw_value:
+        return None, "Ticker or company name must be on one line."
+
+    # Remove leading/trailing whitespace and replace repeated spaces with one.
+    cleaned_value = " ".join(raw_value.strip().split())
+
+    # Many financial sites allow a leading dollar sign, such as "$AAPL".
+    if cleaned_value.startswith("$"):
+        cleaned_value = cleaned_value[1:].strip()
+
+    if cleaned_value == "":
+        return None, "Ticker or company name is required."
+
+    if len(cleaned_value) > MAX_QUERY_LENGTH:
+        return None, "Ticker or company name must be 60 characters or fewer."
+
+    # Permit common ticker and company-name characters, but reject markup,
+    # control characters, and other unexpected punctuation.
+    allowed_pattern = r"^[A-Za-z0-9][A-Za-z0-9 .,&'/-]*$"
+    if re.fullmatch(allowed_pattern, cleaned_value) is None:
+        return (
+            None,
+            "Use only letters, numbers, spaces, periods, commas, hyphens, "
+            "slashes, ampersands, or apostrophes.",
+        )
+
+    # Reject repeated ticker separators such as "BRK..B" or "BRK.-B".
+    if re.search(r"[./-]{2,}", cleaned_value):
+        return None, "Ticker or company name is not formatted correctly."
+
+    if cleaned_value.endswith(("/", "-", "&", "'", ",")):
+        return None, "Ticker or company name is not formatted correctly."
+
+    # Standard ticker symbols are displayed consistently in uppercase.
+    ticker_pattern = r"^[A-Za-z]{1,5}(?:[.-][A-Za-z]{1,2})?$"
+    if re.fullmatch(ticker_pattern, cleaned_value):
+        cleaned_value = cleaned_value.upper()
+
+    return cleaned_value, None
+
 
 # Home route
 @app.route("/")
@@ -15,15 +81,15 @@ def home():
 # fetches news, analyzes it, and sends the result back as JSON.
 @app.route("/analyze", methods=["POST"])
 def analyze():
-    # Get JSON data sent from frontend JavaScript
-    data = request.get_json()
-    # Read the ticker value from the JSON data
-    # strip() removes extra spaces before or after the input
-    ticker = data.get("ticker", "").strip()
+    # silent=True prevents malformed or missing JSON from causing an HTML error.
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Request body must be a JSON object."}), 400
 
-    # If the user did not enter anything, return an error
-    if ticker == "":
-        return jsonify({"error": "Ticker is required."}), 400
+    # Clean the value before sending it to the news and OpenAI services.
+    ticker, validation_error = normalize_ticker_input(data.get("ticker"))
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     # Get news for this ticker, using OpenAI to retrieve data if possible.
     news_items, used_openai = get_news(ticker)
@@ -74,9 +140,9 @@ def debug_news():
 
     Example: /debug-news?ticker=AAPL
     """
-    ticker = request.args.get("ticker", "").strip()
-    if ticker == "":
-        return jsonify({"error": "Ticker is required."}), 400
+    ticker, validation_error = normalize_ticker_input(request.args.get("ticker"))
+    if validation_error:
+        return jsonify({"error": validation_error}), 400
 
     news_items, used_openai = get_news(ticker)
     return jsonify({"used_openai": bool(used_openai), "count": len(news_items), "items": news_items})

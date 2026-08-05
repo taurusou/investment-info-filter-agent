@@ -7,6 +7,10 @@ split:
 - `C/2017/page_328.pdf-1`
 - `DVN/2007/page_58.pdf-2`
 
+The added `qa.exe_ans_scale` field records whether each numerical gold answer
+uses an ordinary number, decimal ratio, or percentage-point convention. It is
+scorer-only metadata and is never included in the model prompt.
+
 Source: https://github.com/czyssrs/FinQA
 
 FinQA paper:

@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+# Increase this text when the FinQA prompt or required response fields change.
+# The evaluator saves it beside cached responses so a reader can see which
+# prompt produced an older answer.
+FINQA_PROMPT_VERSION = "finqa-evidence-v2"
+
+
 def _extract_json_payload(raw_response: str) -> Dict[str, Any]:
     text = (raw_response or "").strip()
 
@@ -122,7 +128,7 @@ def analyze_news(ticker: str, news_items: List[Dict[str, Any]]) -> Dict[str, Any
         return _heuristic_analysis(ticker, news_items)
 
 
-def answer_finqa_example(example: Dict[str, Any]) -> Dict[str, str]:
+def answer_finqa_example(example: Dict[str, Any]) -> Dict[str, Any]:
     """Answer one FinQA question using only its financial-report context.
 
     This function does not read or compare the gold answer. Its only job is to
@@ -199,11 +205,17 @@ def answer_finqa_example(example: Dict[str, Any]) -> Dict[str, str]:
         "QUESTION:\n"
         f"{question.strip()}\n\n"
         "Return only valid JSON in exactly this form:\n"
-        '{"answer": "...", "calculation": "..."}\n'
+        '{"answer": "...", "calculation": "...", '
+        '"evidence": ["source number", "source number"]}\n'
         "Put only the final value in 'answer'. "
         "If it is a percentage, include the percent sign. "
-        "Show a short arithmetic expression using report values in "
-        "'calculation'. Keep enough decimal places for accurate scoring."
+        "In 'calculation', return one arithmetic expression using only "
+        "report numbers, parentheses, +, -, *, and /. Do not include prose, "
+        "an equals sign, or a percent sign in the calculation. For example: "
+        "'(60 / 243) * 100'. Keep enough decimal places for accurate scoring. "
+        "In 'evidence', list only the original report numbers used in the "
+        "calculation. Put one number in each list item. Do not include the "
+        "calculated final answer unless it also appears in the report."
     )
 
     system_prompt = (
@@ -222,7 +234,8 @@ def answer_finqa_example(example: Dict[str, Any]) -> Dict[str, str]:
         raise ValueError("Model response was not a JSON object.")
 
     answer = payload.get("answer")
-    calculation = payload.get("calculation")
+    calculation = payload.get("calculation", "")
+    evidence = payload.get("evidence", [])
 
     # JSON may represent the answer as text or a number. Convert either form
     # to text so the scorer receives one predictable type.
@@ -236,14 +249,25 @@ def answer_finqa_example(example: Dict[str, Any]) -> Dict[str, str]:
             "Model response must include a non-empty 'answer'."
         )
 
-    if not isinstance(calculation, str) or calculation.strip() == "":
-        raise ValueError(
-            "Model response must include a non-empty 'calculation'."
-        )
+    # A missing calculation or evidence list is a quality problem rather than
+    # an API failure. Return an empty value so the evaluator can place the
+    # otherwise valid answer in the "unsupported" category.
+    if not isinstance(calculation, str):
+        calculation = ""
+
+    valid_evidence = isinstance(evidence, list) and all(
+        isinstance(item, (str, int, float)) and not isinstance(item, bool)
+        for item in evidence
+    )
+    if valid_evidence:
+        cleaned_evidence = [str(item).strip() for item in evidence]
+    else:
+        cleaned_evidence = []
 
     return {
         "answer": str(answer).strip(),
         "calculation": calculation.strip(),
+        "evidence": cleaned_evidence,
     }
 
 

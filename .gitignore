@@ -9,3 +9,8 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# FinQA model responses are saved locally so scoring can be repeated without
+# paying for another API call. The cache never contains OPENAI_API_KEY.
+data/finqa_responses.json
+data/finqa_responses.json.tmp

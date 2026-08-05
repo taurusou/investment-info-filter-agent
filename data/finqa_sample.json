@@ -63,7 +63,8 @@
       ],
       "qa": {
         "question": "what is the average payment volume per transaction for american express?",
-        "exe_ans": 127.4
+        "exe_ans": 127.4,
+        "exe_ans_scale": "number"
       }
     },
     {
@@ -119,7 +120,8 @@
       ],
       "qa": {
         "question": "what was the percentage cumulative total return for the five year period ended 31-dec-2017 of citi common stock?",
-        "exe_ans": 0.935
+        "exe_ans": 0.935,
+        "exe_ans_scale": "ratio"
       }
     },
     {
@@ -176,7 +178,8 @@
       ],
       "qa": {
         "question": "what percentage of the total oil and gas mmboe comes from canada?",
-        "exe_ans": 24.69136
+        "exe_ans": 24.69136,
+        "exe_ans_scale": "percentage_points"
       }
     }
   ]
